@@ -201,7 +201,7 @@ async function callGroq(message: string, language: string, key: string) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
       body: JSON.stringify({
-        model: 'mixtral-8x7b-32768',
+        model: 'llama-3.3-70b-versatile',
         messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: sanitize(message) }],
         temperature: 0.7,
         max_tokens: 500,
