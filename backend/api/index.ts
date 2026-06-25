@@ -84,15 +84,15 @@ app.post('/api/ai/chat', async (req, res) => {
     result = await callGemini(message, 'am-ET', geminiKey);
     if (result.error) result = await callGroq(message, 'am-ET', groqKey);
   } else {
-    result = await callGroq(message, 'en-US', groqKey);
-    if (result.error) result = await callGemini(message, 'en-US', geminiKey);
+    result = await callGemini(message, 'en-US', geminiKey);
+    if (result.error) result = await callGroq(message, 'en-US', groqKey);
   }
 
   if (result.noKey) {
     return res.json({
       text: isAmharic
-        ? 'ለመረጃ ረዳት አገልግሎት የAI ቁልፍ (API Key) አልተዘጋጀም።'
-        : 'AI service not configured. Please add a Groq or Gemini API key.',
+        ? 'የAI ቁልፍ አልተገኘም። እባክዎን GROQ_API_KEY ወይም GEMINI_API_KEY ያዘጋጁ።'
+        : 'AI service not configured. Please set GROQ_API_KEY or GEMINI_API_KEY.',
       category: 'System',
     });
   }
@@ -100,8 +100,8 @@ app.post('/api/ai/chat', async (req, res) => {
   if (result.error) {
     return res.json({
       text: isAmharic
-        ? 'ይቅርታ፣ መልስ ማግኘት አልተቻለም። እባክዎን እንደገና ይሞክሩ።'
-        : 'Sorry, I could not get a response. Please try again.',
+        ? `ስህተት: ${result.errorMessage || 'AI ምላሽ ማግኘት አልተቻለም'}`
+        : `Error: ${result.errorMessage || 'Could not get AI response'}`,
       category: 'System',
     });
   }
@@ -191,8 +191,8 @@ async function callGroq(message: string, language: string, key: string) {
   if (!key) return { text: '', error: true, noKey: true };
 
   const systemPrompt = language === 'am-ET'
-    ? 'አንተ እርዳታ የምትሰጥ የAI ረዳት ነህ። በአማርኛ በተፈጥሮ መልስ ስጥ።'
-    : 'You are a helpful AI assistant. Respond clearly and naturally in English.';
+    ? 'አንተ እርዳታ የምትሰጥ የAI ረዳት ነህ። ጥያቄ ከሆነ መልስ ስጥ፣ ውይይት ከሆነ በተፈጥሮ ተነጋገር። በአማርኛ መልስህን አጭር አድርግ።'
+    : 'You are a helpful Ethiopian voice AI assistant. If the user asks a question, answer it directly. If they make a statement or share something, respond naturally and conversationally. Keep responses concise, warm, and useful.';
 
   try {
     const controller = new AbortController();
@@ -209,11 +209,14 @@ async function callGroq(message: string, language: string, key: string) {
       signal: controller.signal,
     });
     clearTimeout(timeout);
-    if (!resp.ok) throw new Error(`Groq error: ${resp.status}`);
+    if (!resp.ok) {
+      const body = await resp.text().catch(() => '');
+      throw new Error(`Groq API ${resp.status}: ${body.slice(0, 200)}`);
+    }
     const data = await resp.json();
     return { text: data.choices[0].message.content.trim(), language };
-  } catch {
-    return { text: '', error: true };
+  } catch (e) {
+    return { text: '', error: true, errorMessage: e.message };
   }
 }
 
@@ -221,15 +224,15 @@ async function callGemini(message: string, language: string, key: string) {
   if (!key) return { text: '', error: true, noKey: true };
 
   const systemPrompt = language === 'am-ET'
-    ? 'አንተ እርዳታ የምትሰጥ የAI ረዳት ነህ። በአማርኛ በተፈጥሮ መልስ ስጥ።'
-    : 'You are a helpful AI assistant. Respond clearly and naturally in English.';
+    ? 'አንተ እርዳታ የምትሰጥ የAI ረዳት ነህ። ጥያቄ ከሆነ መልስ ስጥ፣ ውይይት ከሆነ በተፈጥሮ ተነጋገር። በአማርኛ መልስህን አጭር አድርግ።'
+    : 'You are a helpful Ethiopian voice AI assistant. If the user asks a question, answer it directly. If they make a statement or share something, respond naturally and conversationally. Keep responses concise, warm, and useful.';
 
   try {
     const text = await callGeminiRaw(`${systemPrompt}\n\nUser: ${message}`, key);
-    if (!text) throw new Error('Empty Gemini response');
+    if (!text) throw new Error('Gemini returned empty response');
     return { text: text.trim(), language };
-  } catch {
-    return { text: '', error: true };
+  } catch (e) {
+    return { text: '', error: true, errorMessage: e.message };
   }
 }
 
@@ -252,7 +255,10 @@ async function callGeminiRaw(prompt: string, key: string): Promise<string | null
     },
   );
   clearTimeout(timeout);
-  if (!resp.ok) throw new Error(`Gemini error: ${resp.status}`);
+  if (!resp.ok) {
+    const body = await resp.text().catch(() => '');
+    throw new Error(`Gemini API ${resp.status}: ${body.slice(0, 200)}`);
+  }
   const data = await resp.json();
   return data.candidates?.[0]?.content?.parts?.[0]?.text || null;
 }

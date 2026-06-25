@@ -12,12 +12,12 @@ export async function getAIResponse(userMessage, detectedLanguage) {
       signal: controller.signal,
     });
     clearTimeout(timeout);
-    if (!res.ok) throw new Error(`Backend error: ${res.status}`);
-    return await res.json();
+    const data = await res.json();
+    return data;
   } catch (err) {
     clearTimeout(timeout);
     return {
-      text: 'Sorry, I could not get a response. Please try again.',
+      text: `Connection error: ${err.message}`,
       category: 'System',
     };
   }
