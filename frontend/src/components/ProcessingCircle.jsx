@@ -10,7 +10,7 @@ export default function ProcessingCircle({ percentage }) {
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4 }}
-      className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 flex items-center justify-center my-4 md:my-8"
+      className="relative w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 flex items-center justify-center my-0"
     >
       <svg className="w-full h-full -rotate-90" viewBox="0 0 280 280">
         <circle
@@ -56,11 +56,11 @@ export default function ProcessingCircle({ percentage }) {
           key={percentage}
           initial={{ scale: 1.2, opacity: 0.5 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="text-5xl sm:text-6xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-cyan-300 bg-clip-text text-transparent"
+          className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-cyan-300 bg-clip-text text-transparent"
         >
           {percentage}%
         </motion.div>
-        <div className="text-base md:text-lg text-blue-200 mt-1 md:mt-2 tracking-wide">
+        <div className="text-sm md:text-base text-blue-200 mt-0 tracking-wide">
           Processing
         </div>
       </div>

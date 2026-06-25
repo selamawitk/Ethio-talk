@@ -20,7 +20,7 @@ export default function MicButton({ isRecording, isProcessing, onClick }) {
       {/* Inner Circle */}
       <div
         className={`
-          w-24 h-24 sm:w-28 sm:h-28 rounded-full flex items-center justify-center
+          w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center
           transition-all duration-300 ease-in-out relative z-10
           ${
             isRecording

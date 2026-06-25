@@ -269,7 +269,7 @@ export default function HomePage({ darkMode, selectedLanguage, setSelectedLangua
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="flex flex-col sm:flex-row justify-center md:justify-between items-center mb-2 md:mb-3 gap-2 md:gap-3"
+                className="flex flex-col sm:flex-row justify-center md:justify-between items-center mb-1 md:mb-2 gap-1 md:gap-2"
               >
                 <div
                   className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl backdrop-blur-sm text-sm md:text-base ${
@@ -297,7 +297,7 @@ export default function HomePage({ darkMode, selectedLanguage, setSelectedLangua
               >
                 <motion.h1
                   variants={fadeInUp}
-                  className="text-xl sm:text-2xl md:text-3xl font-bold text-center px-2"
+                  className="text-lg sm:text-xl md:text-2xl font-bold text-center px-2"
                 >
                   Hello, would you like
                   <br />
@@ -312,7 +312,7 @@ export default function HomePage({ darkMode, selectedLanguage, setSelectedLangua
                   variants={fadeInUp}
                   className="flex items-center justify-center"
                 >
-                  <div className="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] md:w-[260px] md:h-[260px]">
+                  <div className="                  w-[140px] h-[140px] sm:w-[170px] sm:h-[170px] md:w-[200px] md:h-[200px]">
                     <OrbVisualization />
                   </div>
                 </motion.div>
@@ -329,15 +329,15 @@ export default function HomePage({ darkMode, selectedLanguage, setSelectedLangua
                 <motion.h1
                   initial={{ scale: 0.9 }}
                   animate={{ scale: 1 }}
-                  className="text-xl sm:text-2xl md:text-3xl font-bold text-center"
+                  className="text-lg sm:text-xl md:text-2xl font-bold text-center"
                 >
                   Recording...
                 </motion.h1>
                 <div className="flex flex-col items-center justify-center">
-                  <div className="w-full max-w-xl md:max-w-2xl h-[140px] sm:h-[160px] md:h-[180px]">
+                  <div className="w-full max-w-xl md:max-w-2xl h-[100px] sm:h-[110px] md:h-[130px]">
                     <VoiceWave isRecording={true} audioLevel={audioLevel} />
                   </div>
-                  <div className="mt-1 md:mt-2">
+                  <div className="mt-0">
                     <Timer seconds={seconds} />
                   </div>
                 </div>
@@ -355,14 +355,14 @@ export default function HomePage({ darkMode, selectedLanguage, setSelectedLangua
                 <motion.h1
                   initial={{ y: -10, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  className="text-lg sm:text-xl md:text-2xl font-bold text-center"
+                  className="text-base sm:text-lg md:text-xl font-bold text-center"
                 >
                   Processing your speech...
                 </motion.h1>
-                <div className="flex items-center gap-2 mt-1 mb-2">
-                  <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
-                  <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
-                  <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
+                <div className="flex items-center gap-1.5 mt-0 mb-1">
+                  <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+                  <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
+                  <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
                 </div>
                 <ProcessingCircle percentage={Math.round(processingProgress)} />
               </motion.div>
@@ -378,11 +378,11 @@ export default function HomePage({ darkMode, selectedLanguage, setSelectedLangua
               >
                 <motion.h1
                   variants={fadeInUp}
-                  className="text-lg sm:text-xl md:text-2xl font-bold text-center mb-2 md:mb-3"
+                  className="text-base sm:text-lg md:text-xl font-bold text-center mb-1 md:mb-2"
                 >
                   Transcription Complete
                 </motion.h1>
-                <div className="space-y-2 md:space-y-3">
+                <div className="space-y-1 md:space-y-2">
                   <motion.div variants={fadeInUp}>
                     <TranscriptionResult text={transcribedText} onEdit={setTranscribedText} />
                   </motion.div>
@@ -398,13 +398,13 @@ export default function HomePage({ darkMode, selectedLanguage, setSelectedLangua
                 </div>
                 <motion.div
                   variants={fadeInUp}
-                  className="flex justify-center mt-2 md:mt-3"
+                  className="flex justify-center mt-1 md:mt-2"
                 >
                   <motion.button
                     whileHover={{ scale: 1.05, boxShadow: '0 0 50px rgba(34,197,94,0.4)' }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleReset}
-                    className="px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-green-500 via-green-600 to-green-700 rounded-2xl text-white font-semibold text-sm md:text-base transition-all duration-300"
+                    className="px-3 md:px-5 py-1.5 md:py-2 bg-gradient-to-r from-green-500 via-green-600 to-green-700 rounded-2xl text-white font-semibold text-xs md:text-sm transition-all duration-300"
                   >
                     Record Again
                   </motion.button>
@@ -417,9 +417,9 @@ export default function HomePage({ darkMode, selectedLanguage, setSelectedLangua
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="flex items-center justify-center gap-4 md:gap-6 pt-1 md:pt-2"
+            className="flex items-center justify-center gap-2 md:gap-3 pt-0"
           >
-            <div className="flex flex-col items-center gap-2 md:gap-4">
+            <div className="flex flex-col items-center gap-0 md:gap-1">
               <MicButton
                 isRecording={state === 'recording'}
                 isProcessing={state === 'processing'}
