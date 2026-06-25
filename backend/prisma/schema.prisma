@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ChatMessage {
+  id                 String   @id @default(cuid())
+  transcription      String
+  response           String
+  language           String
+  pronunciationScore Int?
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@map("chat_messages")
+}
+
+model UserStats {
+  id               String   @id @default(cuid())
+  totalRecordings  Int      @default(0) @map("total_recordings")
+  pronunciationScores Int[] @map("pronunciation_scores")
+  languageData     Json     @default("{}") @map("language_data")
+  lastUpdated      DateTime @default(now()) @map("last_updated")
+
+  @@map("user_stats")
+}
