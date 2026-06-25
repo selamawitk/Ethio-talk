@@ -79,24 +79,25 @@ export default function HomePage({ darkMode, selectedLanguage, setSelectedLangua
     };
 
     recognition.onerror = () => {
-      stopProcessingAnimation();
-      stopAudioAnalysis();
-      setState('idle');
+      const transcript = accumulatedTranscriptRef.current.trim();
+      if (transcript && transcript.length > 2) {
+        processTranscript(transcript);
+      } else {
+        stopProcessingAnimation();
+        stopAudioAnalysis();
+        setState('idle');
+      }
     };
 
     recognition.onend = async () => {
-      if (isManualStopRef.current) {
+      const transcript = accumulatedTranscriptRef.current.trim();
+      if (transcript && transcript.length > 2) {
         isManualStopRef.current = false;
-        const transcript = accumulatedTranscriptRef.current.trim();
-        if (transcript && transcript.length > 2) {
-          await processTranscript(transcript);
-        } else {
-          setState('idle');
-        }
+        await processTranscript(transcript);
       } else if (stateRef.current === 'recording') {
-        setTimeout(() => {
-          try { recognition.start(); } catch { setState('idle'); }
-        }, 300);
+        try { recognition.start(); } catch { setState('idle'); }
+      } else {
+        setState('idle');
       }
     };
 
@@ -312,7 +313,7 @@ export default function HomePage({ darkMode, selectedLanguage, setSelectedLangua
                   variants={fadeInUp}
                   className="flex items-center justify-center"
                 >
-                  <div className="                  w-[140px] h-[140px] sm:w-[170px] sm:h-[170px] md:w-[200px] md:h-[200px]">
+                  <div className="                  w-[110px] h-[110px] sm:w-[140px] sm:h-[140px] md:w-[180px] md:h-[180px]">
                     <OrbVisualization />
                   </div>
                 </motion.div>
@@ -329,7 +330,7 @@ export default function HomePage({ darkMode, selectedLanguage, setSelectedLangua
                 <motion.h1
                   initial={{ scale: 0.9 }}
                   animate={{ scale: 1 }}
-                  className="text-lg sm:text-xl md:text-2xl font-bold text-center"
+                  className="text-base sm:text-xl md:text-2xl font-bold text-center"
                 >
                   Recording...
                 </motion.h1>

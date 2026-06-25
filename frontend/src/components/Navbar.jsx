@@ -34,9 +34,9 @@ export default function Navbar({ darkMode, setDarkMode, showLanguage, selectedLa
       initial={{ opacity: 0, y: -15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
-      className="flex justify-between items-center p-2 md:p-3"
+      className="flex justify-between items-center px-1.5 md:px-3 py-1.5 md:py-3"
     >
-      <div className="flex items-center gap-1 md:gap-1.5">
+      <div className="flex items-center gap-0.5 md:gap-1.5">
         {navItems.map(({ path, icon: Icon, label }, i) => (
           <motion.button
             key={path}
@@ -47,7 +47,7 @@ export default function Navbar({ darkMode, setDarkMode, showLanguage, selectedLa
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate(path)}
-            className={`relative flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 md:py-2 rounded-xl text-xs md:text-sm transition-colors duration-300 ${
+            className={`relative flex items-center gap-1 md:gap-1.5 px-1.5 md:px-3 py-1.5 md:py-2 rounded-xl text-xs md:text-sm transition-colors duration-300 ${
               isActive(path)
                 ? darkMode
                   ? 'text-cyan-400'
@@ -74,7 +74,7 @@ export default function Navbar({ darkMode, setDarkMode, showLanguage, selectedLa
         ))}
       </div>
 
-      <div className="flex items-center gap-1.5 md:gap-2">
+      <div className="flex items-center gap-1 md:gap-2">
         {showLanguage && (
           <select
             value={selectedLanguage}
