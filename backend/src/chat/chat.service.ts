@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 function sanitize(input: string): string {
@@ -7,7 +7,15 @@ function sanitize(input: string): string {
 
 @Injectable()
 export class ChatService {
+  private readonly logger = new Logger(ChatService.name);
+
   constructor(private prisma: PrismaService) {}
+
+  private checkDb() {
+    if (!this.prisma.isConnected) {
+      throw new Error('Database not available. Please set DATABASE_URL.');
+    }
+  }
 
   async saveMessage(data: {
     transcription: string;
@@ -15,6 +23,7 @@ export class ChatService {
     language: string;
     pronunciationScore?: number;
   }) {
+    this.checkDb();
     return this.prisma.chatMessage.create({
       data: {
         transcription: sanitize(data.transcription),
@@ -26,6 +35,7 @@ export class ChatService {
   }
 
   async getMessages(limit = 100) {
+    this.checkDb();
     return this.prisma.chatMessage.findMany({
       orderBy: { createdAt: 'desc' },
       take: limit,
@@ -33,11 +43,13 @@ export class ChatService {
   }
 
   async clearMessages() {
+    this.checkDb();
     await this.prisma.chatMessage.deleteMany();
     return { success: true };
   }
 
   async getStats() {
+    this.checkDb();
     const [messages, stats] = await Promise.all([
       this.prisma.chatMessage.findMany(),
       this.prisma.userStats.findFirst(),
@@ -61,6 +73,7 @@ export class ChatService {
   }
 
   async updateStats(data: { language: string; score?: number }) {
+    this.checkDb();
     let stats = await this.prisma.userStats.findFirst();
     if (!stats) {
       stats = await this.prisma.userStats.create({ data: {} });
@@ -87,6 +100,7 @@ export class ChatService {
   }
 
   async clearStats() {
+    this.checkDb();
     await this.prisma.userStats.deleteMany();
     return { success: true };
   }

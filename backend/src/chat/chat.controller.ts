@@ -8,28 +8,48 @@ export class ChatController {
 
   @Post()
   async saveMessage(@Body() body: CreateMessageDto) {
-    const saved = await this.chatService.saveMessage(body);
-    await this.chatService.updateStats({ language: body.language, score: body.pronunciationScore });
-    return saved;
+    try {
+      const saved = await this.chatService.saveMessage(body);
+      await this.chatService.updateStats({ language: body.language, score: body.pronunciationScore });
+      return saved;
+    } catch (e) {
+      return { error: e.message };
+    }
   }
 
   @Get()
   async getMessages(@Query('limit') limit?: string) {
-    return this.chatService.getMessages(limit ? parseInt(limit, 10) : 100);
+    try {
+      return await this.chatService.getMessages(limit ? parseInt(limit, 10) : 100);
+    } catch (e) {
+      return { error: e.message, messages: [] };
+    }
   }
 
   @Delete()
   async clearMessages() {
-    return this.chatService.clearMessages();
+    try {
+      return await this.chatService.clearMessages();
+    } catch (e) {
+      return { error: e.message };
+    }
   }
 
   @Get('stats')
   async getStats() {
-    return this.chatService.getStats();
+    try {
+      return await this.chatService.getStats();
+    } catch (e) {
+      return { error: e.message };
+    }
   }
 
   @Delete('stats')
   async clearStats() {
-    return this.chatService.clearStats();
+    try {
+      return await this.chatService.clearStats();
+    } catch (e) {
+      return { error: e.message };
+    }
   }
 }
