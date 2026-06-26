@@ -2,7 +2,7 @@ import { Copy, Check, Pencil, Save } from 'lucide-react';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 
-export default function TranscriptionResult({ text, className, onEdit }) {
+export default function TranscriptionResult({ text, className, onEdit, large }) {
   const [copied, setCopied] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(text);
@@ -93,7 +93,11 @@ export default function TranscriptionResult({ text, className, onEdit }) {
             className="w-full text-white text-sm md:text-base leading-relaxed font-['Noto_Sans_Ethiopic',_sans-serif] min-h-[60px] md:min-h-[80px] bg-slate-700/50 rounded-lg p-2 outline-none border border-cyan-500/30 focus:border-cyan-400 resize-y"
           />
         ) : (
-          <div className="text-white text-sm md:text-base leading-relaxed font-['Noto_Sans_Ethiopic',_sans-serif] min-h-[40px] md:min-h-[50px] break-words whitespace-pre-wrap">
+          <div className={`text-white font-['Noto_Sans_Ethiopic',_sans-serif] min-h-[40px] md:min-h-[50px] break-words whitespace-pre-wrap ${
+            large
+              ? 'text-xl sm:text-2xl md:text-3xl font-semibold leading-relaxed tracking-wide'
+              : 'text-sm md:text-base leading-relaxed'
+          }`}>
             {text}
           </div>
         )}
