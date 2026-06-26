@@ -22,7 +22,7 @@ function safeSetLocal(key, value) {
     const str = JSON.stringify(value);
     if (str.length > 500000) return;
     localStorage.setItem(key, str);
-  } catch {}
+  } catch { /* ignore storage errors */ }
 }
 
 export async function saveChatMessage(transcription, response, language, score) {
@@ -41,7 +41,9 @@ export async function getChatHistory() {
   try {
     const res = await fetchWithTimeout(`${API_BASE}/api/chat`);
     if (!res.ok) throw new Error('Backend error');
-    return await res.json();
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error('Unexpected response');
+    return data;
   } catch {
     return getFromLocal();
   }
@@ -59,7 +61,9 @@ export async function getStats() {
   try {
     const res = await fetchWithTimeout(`${API_BASE}/api/chat/stats`);
     if (!res.ok) throw new Error('Backend error');
-    return await res.json();
+    const data = await res.json();
+    if (!data || data.error) throw new Error('Unexpected response');
+    return data;
   } catch {
     return getStatsFromLocal();
   }
