@@ -5,6 +5,24 @@ const LANGUAGE_RANGES = {
 
 const ENGLISH_PATTERN = /[a-zA-Z]/g;
 
+export function cleanTranscript(text) {
+  if (!text || typeof text !== 'string') return '';
+  return text
+    .replace(/[\r\n]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+const RECOGNITION_SUPPORT = {
+  'am-ET': true,
+  'en-US': true,
+  'om-ET': false,
+};
+
+export function isRecognitionSupported(languageCode) {
+  return RECOGNITION_SUPPORT[languageCode] === true;
+}
+
 export const detectLanguage = (text, preferredLanguage = null) => {
   if (!text) return preferredLanguage || 'en-US';
 
@@ -33,5 +51,6 @@ export const getLanguageName = (languageCode) => {
 };
 
 export const getRecognitionLang = (languageCode) => {
-  return languageCode;
+  if (RECOGNITION_SUPPORT[languageCode]) return languageCode;
+  return 'en-US';
 };

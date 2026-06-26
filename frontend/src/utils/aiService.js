@@ -12,13 +12,13 @@ export async function getAIResponse(userMessage, detectedLanguage) {
       signal: controller.signal,
     });
     clearTimeout(timeout);
+    if (!res.ok) throw new Error(`Server error: ${res.status}`);
     const data = await res.json();
+    if (!data || !data.text) throw new Error('Invalid response from server');
     return data;
   } catch (err) {
     clearTimeout(timeout);
-    return {
-      text: `Connection error: ${err.message}`,
-      category: 'System',
-    };
+    if (err.name === 'AbortError') throw new Error('Request timed out');
+    throw err;
   }
 }

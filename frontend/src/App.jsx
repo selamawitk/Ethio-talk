@@ -45,7 +45,7 @@ export default function App() {
         <Suspense fallback={<LoadingFallback />}>
           <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
-              <Route path="/" element={<HomePage darkMode={darkMode} selectedLanguage={selectedLanguage} setSelectedLanguage={setSelectedLanguage} />} />
+              <Route path="/" element={<HomePage darkMode={darkMode} selectedLanguage={selectedLanguage} />} />
               <Route path="/about" element={<AboutPage darkMode={darkMode} />} />
               <Route path="/chat-history" element={<ChatHistoryPage darkMode={darkMode} />} />
               <Route path="/stats-history" element={<StatsHistoryPage darkMode={darkMode} />} />
