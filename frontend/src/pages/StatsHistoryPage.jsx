@@ -59,7 +59,7 @@ export default function StatsHistoryPage({ darkMode }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
-      className={`min-h-screen transition-colors duration-500 ${
+      className={`flex-1 transition-colors duration-500 ${
         darkMode
           ? 'bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 text-white'
           : 'bg-green-50 text-black'

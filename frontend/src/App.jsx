@@ -34,7 +34,7 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      <div className={darkMode ? 'dark' : ''}>
+      <div className={`${darkMode ? 'dark' : ''} h-screen flex flex-col`}>
         <Navbar
           darkMode={darkMode}
           setDarkMode={setDarkMode}
