@@ -26,7 +26,11 @@ function safeSetLocal(key, value) {
 }
 
 export async function saveChatMessage(transcription, response, language, score) {
-  saveToLocal(transcription, response, language, score);
+  try {
+    saveToLocal(transcription, response, language, score);
+  } catch (e) {
+    console.error('ChatHistory saveToLocal failed:', e);
+  }
 
   try {
     await fetchWithTimeout(`${API_BASE}/api/chat`, {
@@ -95,7 +99,12 @@ function saveToLocal(transcription, response, language, score) {
 }
 
 function getFromLocal() {
-  return safeGetLocal('voice_chat_history') || [];
+  try {
+    return safeGetLocal('voice_chat_history') || [];
+  } catch (e) {
+    console.error('ChatHistory getFromLocal failed:', e);
+    return [];
+  }
 }
 
 function updateLocalStats(language, score) {

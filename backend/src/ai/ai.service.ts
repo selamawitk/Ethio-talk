@@ -35,18 +35,29 @@ export class AiService {
   private get geminiKey() { return process.env.GEMINI_API_KEY || ''; }
 
   async getResponse(userMessage: string, language: string): Promise<{ text: string; category: string }> {
-    const needsTranslation = language !== 'en-US';
+    let result;
 
-    const inputForAI = needsTranslation
-      ? await this.translateText(userMessage, 'en-US') || userMessage
-      : userMessage;
+    if (language === 'en-US') {
+      result = await this.callGemini(userMessage, 'en-US', true);
+      if (result.error) result = await this.callGroq(userMessage, 'en-US', true);
+    } else if (language === 'am-ET') {
+      const inputForAI = await this.translateText(userMessage, 'en-US') || userMessage;
+      result = await this.callGemini(inputForAI, language, false);
+      if (result.error) result = await this.callGroq(inputForAI, language, true);
 
-    let result = await this.callGemini(inputForAI, language);
-    if (result.error) result = await this.callGroq(inputForAI, language);
+      if (!result.error && !result.noKey && result.text) {
+        const translatedBack = await this.translateText(result.text, language);
+        if (translatedBack) result.text = translatedBack;
+      }
+    } else {
+      const inputForAI = await this.translateText(userMessage, 'en-US') || userMessage;
+      result = await this.callGemini(inputForAI, language, true);
+      if (result.error) result = await this.callGroq(inputForAI, language, true);
 
-    if (!result.error && !result.noKey && result.text && needsTranslation) {
-      const translatedBack = await this.translateText(result.text, language);
-      if (translatedBack) result.text = translatedBack;
+      if (!result.error && !result.noKey && result.text && language !== 'en-US') {
+        const translatedBack = await this.translateText(result.text, language);
+        if (translatedBack) result.text = translatedBack;
+      }
     }
 
     if (result.noKey) {
@@ -81,11 +92,14 @@ export class AiService {
     return text;
   }
 
-  private async callGroq(message: string, originalLanguage: string) {
+  private async callGroq(message: string, originalLanguage: string, respondInEnglish: boolean = true) {
     if (!this.groqKey) return { text: '', error: true, noKey: true };
 
     const userLang = langName(originalLanguage);
-    const systemPrompt = `You are EthioTalk AI, a helpful Ethiopian voice assistant. The user's language is ${userLang}. Keep this cultural context in mind. Respond in English. Keep responses concise, warm, and useful.`;
+    const responseDirective = respondInEnglish
+      ? 'Respond in English.'
+      : `Respond in ${userLang}.`;
+    const systemPrompt = `You are EthioTalk AI, a helpful Ethiopian voice assistant. The user's language is ${userLang}. Keep this cultural context in mind. ${responseDirective} Keep responses concise, warm, and useful.`;
 
     try {
       const controller = new AbortController();
@@ -149,11 +163,14 @@ export class AiService {
     }
   }
 
-  private async callGemini(message: string, originalLanguage: string) {
+  private async callGemini(message: string, originalLanguage: string, respondInEnglish: boolean = true) {
     if (!this.geminiKey) return { text: '', error: true, noKey: true };
 
     const userLang = langName(originalLanguage);
-    const systemPrompt = `You are EthioTalk AI, a helpful Ethiopian voice assistant. The user's language is ${userLang}. Keep this cultural context in mind. Respond in English. Keep responses concise, warm, and useful.`;
+    const responseDirective = respondInEnglish
+      ? 'Respond in English.'
+      : `Respond in ${userLang}.`;
+    const systemPrompt = `You are EthioTalk AI, a helpful Ethiopian voice assistant. The user's language is ${userLang}. Keep this cultural context in mind. ${responseDirective} Keep responses concise, warm, and useful.`;
 
     try {
       const text = await this.callGeminiRaw(`${systemPrompt}\n\nUser: ${message}`);
