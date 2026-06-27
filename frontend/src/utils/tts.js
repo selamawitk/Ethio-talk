@@ -7,7 +7,7 @@ export function speakText(text, languageCode = 'en-US') {
   const speak = () => {
     window.speechSynthesis.cancel();
     const voices = window.speechSynthesis.getVoices();
-    const targetLang = languageCode === 'am-ET' ? 'am' : 'en';
+    const targetLang = languageCode === 'am-ET' ? 'am' : languageCode === 'om-ET' ? 'om' : 'en';
     const selectedVoice = voices.find(v => v.lang.startsWith(targetLang)) || voices[0];
 
     const utterance = new SpeechSynthesisUtterance(text);
