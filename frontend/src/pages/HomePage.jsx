@@ -343,6 +343,11 @@ export default function HomePage({ darkMode, selectedLanguage }) {
                     <br />
                     to record now?
                   </motion.h1>
+                  <motion.div variants={fadeInUp} className="flex items-center gap-2 px-3 py-1.5 rounded-xl backdrop-blur-sm text-xs md:text-sm bg-cyan-500/10 text-cyan-400">
+                    <Globe className="w-3.5 h-3.5" />
+                    <span className="font-semibold">{getLanguageName(selectedLanguage)}</span>
+                    <span className="opacity-60">selected</span>
+                  </motion.div>
                   {!recognitionSupported && (
                     <motion.p variants={fadeInUp} className="text-red-400 text-sm text-center">
                       Speech recognition not supported in this browser. Please use Chrome on desktop or Android.
