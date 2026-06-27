@@ -2,6 +2,7 @@
   "name": "ethio-talk",
   "private": true,
   "scripts": {
+    "build": "cd frontend && npm run build",
     "postinstall": "cd backend && npm install && npm run build && npx prisma generate",
     "start": "node server.js"
   }
