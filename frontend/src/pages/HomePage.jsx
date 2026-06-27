@@ -289,8 +289,6 @@ export default function HomePage({ darkMode, selectedLanguage }) {
     error: 'Try Again',
   }[state] || 'Tap to Record';
 
-  const unsupportedLang = !isRecognitionSupported(selectedLanguage) && selectedLanguage !== 'en-US';
-
   return (
     <motion.div
       variants={pageVariants}
@@ -348,11 +346,6 @@ export default function HomePage({ darkMode, selectedLanguage }) {
                   {!recognitionSupported && (
                     <motion.p variants={fadeInUp} className="text-red-400 text-sm text-center">
                       Speech recognition not supported in this browser. Please use Chrome on desktop or Android.
-                    </motion.p>
-                  )}
-                  {unsupportedLang && (
-                    <motion.p variants={fadeInUp} className="text-amber-400 text-sm text-center">
-                      {getLanguageName(selectedLanguage)} speech recognition may not be supported. Using English as fallback.
                     </motion.p>
                   )}
                   <motion.div variants={fadeInUp}>

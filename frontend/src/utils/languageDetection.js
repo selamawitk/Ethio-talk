@@ -1,9 +1,7 @@
-const LANGUAGE_RANGES = {
-  'am-ET': { pattern: /[\u1200-\u137F]/g, name: 'Amharic' },
-  'om-ET': { pattern: /[\u1200-\u137F]/g, name: 'Oromiffa' },
-};
-
-const ENGLISH_PATTERN = /[a-zA-Z]/g;
+const ETHIOPIC_RANGE = /[\u1200-\u137F]/;
+const LATIN_LOWER = /[a-z]/;
+const LATIN_UPPER = /[A-Z]/;
+const OROMIFFA_COMMON = /\b(akkam|jirtu|hojii|nyaata|bishaan|gaafi|deebii|guyyaa|hanga|yoo|kan|itti|waan|tokko| lama|sadi|afur|shan|jaa|torba|saddeet|sagal|kudhan)\b/i;
 
 export function cleanTranscript(text) {
   if (!text || typeof text !== 'string') return '';
@@ -13,44 +11,39 @@ export function cleanTranscript(text) {
     .trim();
 }
 
-const RECOGNITION_SUPPORT = {
-  'am-ET': true,
-  'en-US': true,
-  'om-ET': false,
-};
-
 export function isRecognitionSupported(languageCode) {
-  return RECOGNITION_SUPPORT[languageCode] === true;
+  return ['am-ET', 'om-ET', 'en-US'].includes(languageCode);
 }
 
-export const detectLanguage = (text, preferredLanguage = null) => {
-  if (!text) return preferredLanguage || 'en-US';
+export function detectLanguage(text, selectedLanguage) {
+  if (!text || typeof text !== 'string') return selectedLanguage || 'en-US';
 
-  if (preferredLanguage && ['am-ET', 'om-ET', 'en-US'].includes(preferredLanguage)) {
-    return preferredLanguage;
+  if (ETHIOPIC_RANGE.test(text)) return 'am-ET';
+
+  const lower = text.toLowerCase();
+  if (selectedLanguage === 'om-ET' || OROMIFFA_COMMON.test(lower)) {
+    const latinCount = (lower.match(/[a-z]/g) || []).length;
+    if (latinCount > 0) return 'om-ET';
   }
 
-  const ethiopicCount = (text.match(LANGUAGE_RANGES['am-ET'].pattern) || []).length;
-  const englishCount = (text.match(ENGLISH_PATTERN) || []).length;
-
-  if (ethiopicCount > englishCount) {
-    if (ethiopicCount > 0) return 'am-ET';
+  if (selectedLanguage === 'en-US' || selectedLanguage === 'am-ET') {
+    const latinWordCount = (text.match(/[a-zA-Z]{2,}/g) || []).length;
+    if (latinWordCount >= 2) return 'en-US';
   }
-  if (englishCount > 0) return 'en-US';
 
-  return 'en-US';
-};
+  return selectedLanguage || 'en-US';
+}
 
-export const getLanguageName = (languageCode) => {
-  const languageNames = {
+export function getLanguageName(languageCode) {
+  const names = {
     'am-ET': 'Amharic',
     'om-ET': 'Oromiffa',
     'en-US': 'English',
   };
-  return languageNames[languageCode] || 'Unknown';
-};
+  return names[languageCode] || 'Unknown';
+}
 
-export const getRecognitionLang = (languageCode) => {
-  if (RECOGNITION_SUPPORT[languageCode]) return languageCode;
+export function getRecognitionLang(languageCode) {
+  if (['am-ET', 'om-ET', 'en-US'].includes(languageCode)) return languageCode;
   return 'en-US';
-};
+}
