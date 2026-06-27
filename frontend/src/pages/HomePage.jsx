@@ -300,7 +300,7 @@ export default function HomePage({ darkMode, selectedLanguage }) {
           : 'bg-green-50 text-black'
       }`}
     >
-      <div className="flex-1 flex flex-col items-center px-3 md:px-4 pt-1 md:pt-2 pb-3 md:pb-4">
+      <div className="flex-1 flex flex-col items-center px-3 md:px-4 pt-0 md:pt-2 pb-2 md:pb-4">
         <div className="w-full max-w-4xl flex-1 flex flex-col">
           <AnimatePresence mode="wait">
             {state === 'completed' && detectedLang && (
@@ -309,7 +309,7 @@ export default function HomePage({ darkMode, selectedLanguage }) {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="flex justify-center mb-2"
+                className="flex justify-center mb-1"
               >
                 <div
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-xl backdrop-blur-sm text-xs md:text-sm ${
@@ -332,11 +332,11 @@ export default function HomePage({ darkMode, selectedLanguage }) {
                   initial="initial"
                   animate="animate"
                   exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
-                  className="flex flex-col items-center gap-4 md:gap-6"
+                  className="flex flex-col items-center gap-2 md:gap-5"
                 >
                   <motion.h1
                     variants={fadeInUp}
-                    className="text-2xl sm:text-3xl md:text-5xl font-bold text-center px-2"
+                    className="text-3xl sm:text-3xl md:text-5xl font-bold text-center px-2 leading-tight"
                   >
                     Hello, would you like
                     <br />
@@ -353,7 +353,7 @@ export default function HomePage({ darkMode, selectedLanguage }) {
                     </motion.p>
                   )}
                   <motion.div variants={fadeInUp}>
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28">
+                    <div className="w-28 h-28 sm:w-28 sm:h-28 md:w-32 md:h-32">
                       <OrbVisualization />
                     </div>
                   </motion.div>
@@ -366,12 +366,12 @@ export default function HomePage({ darkMode, selectedLanguage }) {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
-                  className="flex flex-col items-center gap-3 md:gap-4 w-full"
+                  className="flex flex-col items-center gap-2 md:gap-4 w-full"
                 >
                   <motion.h1
                     initial={{ scale: 0.9 }}
                     animate={{ scale: 1 }}
-                    className="text-sm sm:text-base md:text-lg font-bold text-center text-cyan-400"
+                    className="text-base sm:text-base md:text-lg font-bold text-center text-cyan-400"
                   >
                     Recording...
                   </motion.h1>
@@ -395,7 +395,7 @@ export default function HomePage({ darkMode, selectedLanguage }) {
                   exit={{ opacity: 0, y: -10, transition: { duration: 0.2 } }}
                   className="flex flex-col items-center gap-3"
                 >
-                  <div className="text-base sm:text-lg md:text-xl font-semibold text-cyan-400">
+                  <div className="text-lg sm:text-lg md:text-xl font-semibold text-cyan-400">
                     Transcribing...
                   </div>
                   <div className="flex gap-1.5">
@@ -412,10 +412,10 @@ export default function HomePage({ darkMode, selectedLanguage }) {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10, transition: { duration: 0.2 } }}
-                  className="flex flex-col items-center gap-4 md:gap-6 w-full max-w-xl px-2"
+                  className="flex flex-col items-center gap-3 md:gap-6 w-full max-w-xl px-2"
                 >
                   <div className="text-center">
-                    <div className={`text-xl sm:text-2xl md:text-4xl font-semibold leading-relaxed tracking-wide max-w-xl ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <div className={`text-2xl sm:text-2xl md:text-4xl font-semibold leading-relaxed tracking-wide max-w-xl ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                       {transcribedText}
                     </div>
                   </div>
@@ -437,9 +437,9 @@ export default function HomePage({ darkMode, selectedLanguage }) {
                   initial="initial"
                   animate="animate"
                   exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
-                  className="flex flex-col items-center gap-3 md:gap-4 w-full"
+                  className="flex flex-col items-center gap-2 md:gap-4 w-full"
                 >
-                  <div className="w-full max-w-xl space-y-3 md:space-y-4">
+                  <div className="w-full max-w-xl space-y-2 md:space-y-4">
                     <motion.div variants={fadeInUp}>
                       <TranscriptionResult text={transcribedText} onEdit={setTranscribedText} large />
                     </motion.div>
@@ -475,7 +475,7 @@ export default function HomePage({ darkMode, selectedLanguage }) {
           </div>
 
           {showMic && (
-            <div className="flex flex-col items-center gap-2 md:gap-3 pt-3 md:pt-4 pb-1">
+            <div className="flex flex-col items-center gap-1 md:gap-3 pt-2 md:pt-4 pb-0 md:pb-1">
               <MicButton
                 isRecording={state === 'recording'}
                 isProcessing={isProcessing}

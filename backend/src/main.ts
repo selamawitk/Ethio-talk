@@ -18,6 +18,7 @@ async function bootstrap() {
       'http://localhost:5173',
       'http://localhost:3000',
       /\.vercel\.app$/,
+      /^http:\/\/192\.168\./,
     ],
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     credentials: true,
