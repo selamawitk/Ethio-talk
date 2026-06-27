@@ -1,5 +1,4 @@
 .vite
-dist
 node_modules
 .git
 README.md

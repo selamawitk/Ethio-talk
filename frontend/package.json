@@ -8,6 +8,7 @@
     "dev:all": "concurrently \"npm run dev\" \"npm run dev:backend\"",
     "dev:backend": "cd backend && npm run start:dev",
     "build": "vite build",
+    "build:vercel": "vite build --outDir ../dist",
     "build:backend": "cd backend && npm run build",
     "lint": "eslint .",
     "preview": "vite preview",
