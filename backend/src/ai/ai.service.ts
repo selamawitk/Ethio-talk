@@ -41,8 +41,8 @@ export class AiService {
       ? await this.translateText(userMessage, 'en-US') || userMessage
       : userMessage;
 
-    let result = await this.callGemini(inputForAI, 'en-US');
-    if (result.error) result = await this.callGroq(inputForAI, 'en-US');
+    let result = await this.callGemini(inputForAI, language);
+    if (result.error) result = await this.callGroq(inputForAI, language);
 
     if (!result.error && !result.noKey && result.text && needsTranslation) {
       const translatedBack = await this.translateText(result.text, language);
@@ -81,10 +81,11 @@ export class AiService {
     return text;
   }
 
-  private async callGroq(message: string, language: string) {
+  private async callGroq(message: string, originalLanguage: string) {
     if (!this.groqKey) return { text: '', error: true, noKey: true };
 
-    const systemPrompt = 'You are a helpful Ethiopian voice AI assistant. If the user asks a question, answer it directly. If they make a statement or share something, respond naturally and conversationally. Keep responses concise, warm, and useful.';
+    const userLang = langName(originalLanguage);
+    const systemPrompt = `You are EthioTalk AI, a helpful Ethiopian voice assistant. The user's language is ${userLang}. Keep this cultural context in mind. Respond in English. Keep responses concise, warm, and useful.`;
 
     try {
       const controller = new AbortController();
@@ -114,7 +115,7 @@ export class AiService {
       }
 
       const data = await response.json();
-      return { text: data.choices[0].message.content.trim(), language };
+      return { text: data.choices[0].message.content.trim(), language: originalLanguage };
     } catch (e) {
       return { text: '', error: true, errorMessage: e.message };
     }
@@ -148,15 +149,16 @@ export class AiService {
     }
   }
 
-  private async callGemini(message: string, language: string) {
+  private async callGemini(message: string, originalLanguage: string) {
     if (!this.geminiKey) return { text: '', error: true, noKey: true };
 
-    const systemPrompt = 'You are a helpful Ethiopian voice AI assistant. If the user asks a question, answer it directly. If they make a statement or share something, respond naturally and conversationally. Keep responses concise, warm, and useful.';
+    const userLang = langName(originalLanguage);
+    const systemPrompt = `You are EthioTalk AI, a helpful Ethiopian voice assistant. The user's language is ${userLang}. Keep this cultural context in mind. Respond in English. Keep responses concise, warm, and useful.`;
 
     try {
       const text = await this.callGeminiRaw(`${systemPrompt}\n\nUser: ${message}`);
       if (!text) throw new Error('Gemini returned empty response');
-      return { text: text.trim(), language };
+      return { text: text.trim(), language: originalLanguage };
     } catch (e) {
       return { text: '', error: true, errorMessage: e.message };
     }
