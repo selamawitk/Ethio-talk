@@ -117,7 +117,7 @@ export default function HomePage({ darkMode, selectedLanguage }) {
     }
 
     setTranscribedText(transcript);
-    const langCode = detectLanguage(transcript, selectedLanguage);
+    const langCode = detectLanguage(transcript);
     setDetectedLang(langCode);
     setState('transcribing');
 
@@ -139,7 +139,7 @@ export default function HomePage({ darkMode, selectedLanguage }) {
       setErrorMsg(err.message || 'Failed to get AI response. Please check your connection.');
       setState('error');
     }
-  }, [selectedLanguage, stopAudioAnalysis]);
+  }, [stopAudioAnalysis]);
 
   const processTranscriptRef = useRef(processTranscript);
   processTranscriptRef.current = processTranscript;
