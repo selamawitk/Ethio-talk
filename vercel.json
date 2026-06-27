@@ -1,6 +1,7 @@
 {
   "rootDirectory": "frontend",
   "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://ethio-talk.onrender.com/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
