@@ -55,6 +55,15 @@ export async function getChatHistory() {
   }
 }
 
+export async function deleteChatMessage(id) {
+  try {
+    await fetchWithTimeout(`${API_BASE}/api/chat/${id}`, { method: 'DELETE' });
+  } catch {
+  }
+  const history = getFromLocal().filter(m => m.id !== id);
+  safeSetLocal('voice_chat_history', history);
+}
+
 export async function clearChatHistory() {
   try {
     await fetchWithTimeout(`${API_BASE}/api/chat`, { method: 'DELETE' });

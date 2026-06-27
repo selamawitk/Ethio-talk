@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, Globe } from 'lucide-react';
+import { AlertCircle, Globe, RefreshCw } from 'lucide-react';
 import MicButton from '../components/MicButton';
 import VoiceWave from '../components/VoiceWave';
 import OrbVisualization from '../components/OrbVisualization';
@@ -47,6 +47,7 @@ export default function HomePage({ darkMode, selectedLanguage }) {
   const stateRef = useRef(state);
   const levelAnimRef = useRef(null);
   const mountedRef = useRef(true);
+  const originalTranscriptRef = useRef('');
 
   stateRef.current = state;
 
@@ -117,6 +118,7 @@ export default function HomePage({ darkMode, selectedLanguage }) {
     }
 
     setTranscribedText(transcript);
+    originalTranscriptRef.current = transcript;
     const langCode = detectLanguage(transcript);
     setDetectedLang(langCode);
     setState('transcribing');
@@ -275,7 +277,26 @@ export default function HomePage({ darkMode, selectedLanguage }) {
     if (responseText && detectedLang) speakText(responseText, detectedLang);
   };
 
+  const handleRegenerate = async () => {
+    if (!transcribedText || !detectedLang) return;
+    setState('ai_processing');
+    try {
+      const aiResult = await getAIResponse(transcribedText, detectedLang);
+      if (!mountedRef.current) return;
+      setResponseText(aiResult.text);
+      setResponseCategory(aiResult.category || '');
+      saveChatMessage(transcribedText, aiResult.text, detectedLang).catch(() => {});
+      originalTranscriptRef.current = transcribedText;
+      setState('completed');
+    } catch (err) {
+      if (!mountedRef.current) return;
+      setErrorMsg(err.message || 'Failed to get AI response.');
+      setState('error');
+    }
+  };
+
   const isProcessing = state === 'ai_processing' || state === 'transcribing';
+  const isEdited = state === 'completed' && transcribedText !== originalTranscriptRef.current;
 
   const showMic = state === 'idle' || state === 'recording' || state === 'completed' || state === 'error';
 
@@ -443,6 +464,19 @@ export default function HomePage({ darkMode, selectedLanguage }) {
                     <motion.div variants={fadeInUp}>
                       <TranscriptionResult text={transcribedText} onEdit={setTranscribedText} large />
                     </motion.div>
+                    {isEdited && (
+                      <motion.div variants={fadeInUp} className="flex justify-center">
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={handleRegenerate}
+                          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg text-sm font-medium"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                          Update AI Response
+                        </motion.button>
+                      </motion.div>
+                    )}
                     {responseText && (
                       <motion.div variants={fadeInUp}>
                         <ResponseBox

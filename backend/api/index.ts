@@ -177,6 +177,14 @@ app.delete('/api/chat', (_req, res) => {
   res.json({ success: true });
 });
 
+app.delete('/api/chat/:id', (req, res) => {
+  const { id } = req.params;
+  const idx = historyStore.findIndex(m => m.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Message not found' });
+  historyStore.splice(idx, 1);
+  res.json({ success: true });
+});
+
 app.get('/api/chat/stats', (_req, res) => {
   res.json(statsStore);
 });

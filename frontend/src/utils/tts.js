@@ -1,37 +1,48 @@
+function findVoice(voices, langPrefix) {
+  return voices.find(v => v.lang.toLowerCase().startsWith(langPrefix))
+    || voices.find(v => v.lang.toLowerCase().split('-')[0] === langPrefix)
+    || voices.find(v => v.lang.toLowerCase().split('_')[0] === langPrefix);
+}
+
 export function speakText(text, languageCode = 'en-US') {
   if (!('speechSynthesis' in window)) return;
 
-  const voices = window.speechSynthesis.getVoices();
+  speechSynthesis.cancel();
+
+  const voices = speechSynthesis.getVoices();
   const targetLangPrefix = languageCode === 'am-ET' ? 'am' : languageCode === 'om-ET' ? 'om' : 'en';
-  const matchingVoice = voices.find(v => v.lang.startsWith(targetLangPrefix));
+  const matchingVoice = findVoice(voices, targetLangPrefix);
 
   const utterance = new SpeechSynthesisUtterance(text);
   if (matchingVoice) {
     utterance.voice = matchingVoice;
   }
-  utterance.lang = languageCode;
+  utterance.lang = matchingVoice ? matchingVoice.lang : languageCode;
   utterance.rate = 0.9;
   utterance.pitch = 1.0;
 
   if (voices.length === 0) {
+    let tried = false;
     const onVoicesChanged = () => {
-      window.speechSynthesis.cancel();
-      const loadedVoices = window.speechSynthesis.getVoices();
-      const loadedMatch = loadedVoices.find(v => v.lang.startsWith(targetLangPrefix));
+      if (tried) return;
+      tried = true;
+      speechSynthesis.cancel();
+      const loadedVoices = speechSynthesis.getVoices();
+      const loadedMatch = findVoice(loadedVoices, targetLangPrefix);
       if (loadedMatch) utterance.voice = loadedMatch;
-      utterance.lang = languageCode;
-      window.speechSynthesis.speak(utterance);
-      window.speechSynthesis.onvoiceschanged = null;
+      utterance.lang = loadedMatch ? loadedMatch.lang : languageCode;
+      speechSynthesis.speak(utterance);
+      speechSynthesis.onvoiceschanged = null;
     };
-    window.speechSynthesis.onvoiceschanged = onVoicesChanged;
+    speechSynthesis.onvoiceschanged = onVoicesChanged;
     setTimeout(() => {
-      if (window.speechSynthesis.onvoiceschanged === onVoicesChanged) {
-        window.speechSynthesis.onvoiceschanged = null;
-        window.speechSynthesis.speak(utterance);
+      if (!tried) {
+        tried = true;
+        speechSynthesis.onvoiceschanged = null;
+        speechSynthesis.speak(utterance);
       }
-    }, 1000);
+    }, 2000);
   } else {
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
+    speechSynthesis.speak(utterance);
   }
 }

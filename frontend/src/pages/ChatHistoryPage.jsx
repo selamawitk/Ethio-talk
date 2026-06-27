@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Trash2, Volume2, Copy, Check } from 'lucide-react';
-import { getChatHistory, clearChatHistory } from '../utils/ChatHistory';
+import { getChatHistory, clearChatHistory, deleteChatMessage } from '../utils/ChatHistory';
 import { getLanguageName } from '../utils/languageDetection';
 import { speakText } from '../utils/tts';
 
@@ -46,6 +46,11 @@ export default function ChatHistoryPage({ darkMode }) {
       await clearChatHistory();
       setHistory([]);
     }
+  };
+
+  const handleDeleteMessage = async (id) => {
+    await deleteChatMessage(id);
+    setHistory(prev => prev.filter(m => m.id !== id));
   };
 
   const handleSpeak = (text, language) => {
@@ -192,6 +197,15 @@ export default function ChatHistoryPage({ darkMode }) {
                       </span>
                     )}
                   </div>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => handleDeleteMessage(item.id)}
+                    className="p-1.5 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                  </motion.button>
                 </div>
 
                 <div className="space-y-3 md:space-y-4">
