@@ -44,6 +44,7 @@ export default function HomePage({ darkMode, selectedLanguage }) {
   const mediaStreamRef = useRef(null);
   const recognitionRef = useRef(null);
   const accumulatedTranscriptRef = useRef('');
+  const latestTranscriptRef = useRef('');
   const stateRef = useRef(state);
   const levelAnimRef = useRef(null);
   const mountedRef = useRef(true);
@@ -159,16 +160,23 @@ export default function HomePage({ darkMode, selectedLanguage }) {
     recognition.lang = getRecognitionLang(selectedLanguage);
 
     recognition.onresult = (event) => {
-      let finalTranscript = '';
+      let finalText = '';
+      let interimText = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
-          finalTranscript += result[0].transcript + ' ';
+          finalText += result[0].transcript + ' ';
+        } else {
+          interimText += result[0].transcript + ' ';
         }
       }
-      if (finalTranscript) {
-        accumulatedTranscriptRef.current += finalTranscript;
-        setTranscribedText(accumulatedTranscriptRef.current.trim());
+      if (finalText) {
+        accumulatedTranscriptRef.current += finalText;
+        latestTranscriptRef.current = accumulatedTranscriptRef.current.trim();
+        setTranscribedText(latestTranscriptRef.current);
+      } else if (interimText) {
+        latestTranscriptRef.current = interimText.trim();
+        setTranscribedText(latestTranscriptRef.current);
       }
     };
 
@@ -248,6 +256,7 @@ export default function HomePage({ darkMode, selectedLanguage }) {
       const recognitionLang = getRecognitionLang(selectedLanguage);
       recognitionRef.current.lang = recognitionLang;
       accumulatedTranscriptRef.current = '';
+      latestTranscriptRef.current = '';
       setSeconds(0);
       setTranscribedText('');
       setResponseText('');
@@ -271,10 +280,15 @@ export default function HomePage({ darkMode, selectedLanguage }) {
           stopAudioAnalysis();
         }
       }
-      const pendingText = accumulatedTranscriptRef.current.trim();
-      if (pendingText && pendingText.length > 2) {
+      const pendingFinal = accumulatedTranscriptRef.current.trim();
+      const pendingLatest = latestTranscriptRef.current.trim();
+      if (pendingFinal && pendingFinal.length > 2) {
         accumulatedTranscriptRef.current = '';
-        processTranscriptRef.current(pendingText);
+        processTranscriptRef.current(pendingFinal);
+      } else if (pendingLatest && pendingLatest.length > 2) {
+        accumulatedTranscriptRef.current = '';
+        latestTranscriptRef.current = '';
+        processTranscriptRef.current(pendingLatest);
       }
     }
   };
