@@ -133,7 +133,6 @@ export default function HomePage({ darkMode, selectedLanguage }) {
       setResponseCategory(aiResult.category || '');
       saveChatMessage(transcript, aiResult.text, langCode).catch(() => {});
       setState('completed');
-      setTimeout(() => speakText(aiResult.text, langCode), 500);
     } catch (err) {
       if (!mountedRef.current) return;
       setErrorMsg(err.message || 'Failed to get AI response. Please check your connection.');

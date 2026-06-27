@@ -26,18 +26,15 @@ function safeSetLocal(key, value) {
 }
 
 export async function saveChatMessage(transcription, response, language, score) {
+  saveToLocal(transcription, response, language, score);
+
   try {
-    const res = await fetchWithTimeout(`${API_BASE}/api/chat`, {
+    await fetchWithTimeout(`${API_BASE}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ transcription, response, language, pronunciationScore: score }),
     });
-    const data = await res.json();
-    if (!res.ok || (data && data.error)) {
-      saveToLocal(transcription, response, language, score);
-    }
   } catch {
-    saveToLocal(transcription, response, language, score);
   }
 }
 
