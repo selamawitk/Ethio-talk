@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, Globe, Mic, RefreshCw } from 'lucide-react';
+import { AlertCircle, Globe } from 'lucide-react';
 import MicButton from '../components/MicButton';
 import VoiceWave from '../components/VoiceWave';
 import OrbVisualization from '../components/OrbVisualization';
@@ -108,6 +108,7 @@ export default function HomePage({ darkMode, selectedLanguage }) {
   }, []);
 
   const processTranscript = useCallback(async (rawTranscript) => {
+    accumulatedTranscriptRef.current = '';
     const transcript = cleanTranscript(rawTranscript);
     if (!transcript || transcript.length < 2) {
       stopAudioAnalysis();
@@ -154,65 +155,73 @@ export default function HomePage({ darkMode, selectedLanguage }) {
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
-
-    const recognitionLang = getRecognitionLang(selectedLanguage);
-    recognition.lang = recognitionLang;
+    recognition.lang = getRecognitionLang(selectedLanguage);
 
     recognition.onresult = (event) => {
-      let fullTranscript = '';
+      let finalTranscript = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        if (event.results[i].isFinal) {
-          fullTranscript += event.results[i][0].transcript + ' ';
+        const result = event.results[i];
+        if (result.isFinal) {
+          finalTranscript += result[0].transcript + ' ';
         }
       }
-      if (fullTranscript) {
-        accumulatedTranscriptRef.current += fullTranscript;
+      if (finalTranscript) {
+        accumulatedTranscriptRef.current += finalTranscript;
         setTranscribedText(accumulatedTranscriptRef.current.trim());
       }
     };
 
     recognition.onerror = (event) => {
-      if (event.error === 'no-speech') {
-        const transcript = accumulatedTranscriptRef.current.trim();
-        if (transcript && transcript.length > 2) {
-          processTranscriptRef.current(transcript);
-        } else {
-          stopAudioAnalysis();
-          if (mountedRef.current) {
-            setErrorMsg('No speech detected. Please try again.');
-            setState('error');
-          }
-        }
-      } else if (event.error === 'aborted') {
+      if (event.error === 'aborted') return;
+      stopAudioAnalysis();
+      if (!mountedRef.current) return;
+      const transcript = accumulatedTranscriptRef.current.trim();
+      if (event.error === 'no-speech' && transcript && transcript.length > 2) {
+        accumulatedTranscriptRef.current = '';
+        processTranscriptRef.current(transcript);
         return;
-      } else {
-        const transcript = accumulatedTranscriptRef.current.trim();
-        if (transcript && transcript.length > 2) {
-          processTranscriptRef.current(transcript);
-        } else {
-          stopAudioAnalysis();
-          if (mountedRef.current) {
-            setErrorMsg(`Speech recognition error: ${event.error}`);
-            setState('error');
-          }
-        }
       }
+      if (event.error === 'no-speech') {
+        setErrorMsg('No speech detected. Please try again.');
+      } else if (event.error === 'not-allowed') {
+        setErrorMsg('Microphone access denied. Please allow microphone permissions.');
+      } else {
+        setErrorMsg(`Speech recognition error: ${event.error}`);
+      }
+      setState('error');
     };
 
     recognition.onend = async () => {
       const transcript = accumulatedTranscriptRef.current.trim();
       if (transcript && transcript.length > 2) {
+        accumulatedTranscriptRef.current = '';
         await processTranscriptRef.current(transcript);
-      } else if (stateRef.current === 'recording') {
-        try { recognition.start(); } catch {
-          if (mountedRef.current) setState('idle');
+        return;
+      }
+      if (stateRef.current === 'recording') {
+        if (mountedRef.current) {
+          try { recognition.start(); } catch {
+            if (mountedRef.current) setState('idle');
+          }
         }
-      } else if (stateRef.current !== 'error') {
+      } else if (stateRef.current === 'idle' || stateRef.current === 'completed') {
         if (mountedRef.current) setState('idle');
       }
     };
 
     recognitionRef.current = recognition;
+
+    return () => {
+      try {
+        recognition.onend = null;
+        recognition.onerror = null;
+        recognition.onresult = null;
+        recognition.abort();
+      } catch {}
+      if (recognitionRef.current === recognition) {
+        recognitionRef.current = null;
+      }
+    };
   }, [selectedLanguage, stopAudioAnalysis]);
 
   useEffect(() => {
@@ -230,7 +239,11 @@ export default function HomePage({ darkMode, selectedLanguage }) {
 
   const handleMicClick = () => {
     if (state === 'idle' || state === 'completed' || state === 'error') {
-      if (!recognitionRef.current) return;
+      if (!recognitionRef.current) {
+        setErrorMsg('Speech recognition not available in this browser.');
+        setState('error');
+        return;
+      }
       const recognitionLang = getRecognitionLang(selectedLanguage);
       recognitionRef.current.lang = recognitionLang;
       accumulatedTranscriptRef.current = '';
@@ -252,6 +265,7 @@ export default function HomePage({ darkMode, selectedLanguage }) {
         try {
           recognitionRef.current.stop();
         } catch {
+          stopAudioAnalysis();
           setState('idle');
         }
       }
@@ -283,7 +297,7 @@ export default function HomePage({ darkMode, selectedLanguage }) {
       initial="initial"
       animate="animate"
       exit="exit"
-      className={`min-h-screen flex flex-col transition-colors duration-500 ${
+      className={`flex-1 flex flex-col transition-colors duration-500 ${
         darkMode
           ? 'bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 text-white'
           : 'bg-green-50 text-black'
@@ -367,6 +381,11 @@ export default function HomePage({ darkMode, selectedLanguage }) {
                   <div className="w-full max-w-xl h-14 sm:h-16 md:h-20">
                     <VoiceWave isRecording={true} audioLevel={audioLevel} />
                   </div>
+                  {transcribedText && (
+                    <div className={`w-full max-w-xl text-sm md:text-base text-center px-2 py-2 rounded-lg ${darkMode ? 'bg-slate-800/40 text-gray-300' : 'bg-white/70 text-gray-700'}`}>
+                      {transcribedText}
+                    </div>
+                  )}
                   <Timer seconds={seconds} />
                 </motion.div>
               )}
