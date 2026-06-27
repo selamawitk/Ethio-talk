@@ -262,6 +262,7 @@ export default function HomePage({ darkMode, selectedLanguage }) {
         setState('error');
       }
     } else if (state === 'recording') {
+      stateRef.current = 'idle';
       setState('idle');
       if (recognitionRef.current) {
         try {
@@ -269,6 +270,11 @@ export default function HomePage({ darkMode, selectedLanguage }) {
         } catch {
           stopAudioAnalysis();
         }
+      }
+      const pendingText = accumulatedTranscriptRef.current.trim();
+      if (pendingText && pendingText.length > 2) {
+        accumulatedTranscriptRef.current = '';
+        processTranscriptRef.current(pendingText);
       }
     }
   };
@@ -509,7 +515,7 @@ export default function HomePage({ darkMode, selectedLanguage }) {
           </div>
 
           {showMic && (
-            <div className="flex flex-col items-center gap-1 md:gap-3 pt-2 md:pt-4 pb-0 md:pb-1 -mt-7 md:mt-0">
+            <div className="flex flex-col items-center gap-1 md:gap-3 pt-0 md:pt-4 pb-0 md:pb-1 -mt-[30px] md:mt-0">
               <MicButton
                 isRecording={state === 'recording'}
                 isProcessing={isProcessing}
