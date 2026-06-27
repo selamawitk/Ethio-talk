@@ -18,6 +18,7 @@ export default function ChatHistoryPage({ darkMode }) {
   const [history, setHistory] = useState([]);
   const [copiedId, setCopiedId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [toast, setToast] = useState(null);
 
   useEffect(() => {
@@ -26,8 +27,17 @@ export default function ChatHistoryPage({ darkMode }) {
 
   const loadHistory = async () => {
     setLoading(true);
-    const chatHistory = await getChatHistory();
-    setHistory(chatHistory);
+    setLoadError(false);
+    try {
+      const chatHistory = await getChatHistory();
+      if (!Array.isArray(chatHistory)) {
+        setLoadError(true);
+      } else {
+        setHistory(chatHistory);
+      }
+    } catch {
+      setLoadError(true);
+    }
     setLoading(false);
   };
 
@@ -124,6 +134,22 @@ export default function ChatHistoryPage({ darkMode }) {
               </div>
             ))}
           </div>
+        ) : loadError ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center py-16"
+          >
+            <p className="text-lg md:text-xl text-red-400">
+              Failed to load chat history.
+            </p>
+            <button
+              onClick={loadHistory}
+              className="mt-4 px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-xl hover:bg-cyan-500/30 transition-all text-sm"
+            >
+              Try Again
+            </button>
+          </motion.div>
         ) : history.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -131,7 +157,7 @@ export default function ChatHistoryPage({ darkMode }) {
             className="text-center py-16"
           >
             <p className="text-lg md:text-xl text-gray-500">
-              No chat history yet. Start recording to see your conversations here.
+              No chats yet. Start recording to see your conversations here.
             </p>
           </motion.div>
         ) : (

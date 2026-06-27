@@ -42,6 +42,7 @@ export async function getChatHistory() {
     const res = await fetchWithTimeout(`${API_BASE}/api/chat`);
     if (!res.ok) throw new Error('Backend error');
     const data = await res.json();
+    if (data && data.error) return getFromLocal();
     if (!Array.isArray(data)) throw new Error('Unexpected response');
     return data;
   } catch {
