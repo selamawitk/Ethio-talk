@@ -172,11 +172,7 @@ Set `GROQ_API_KEY` and `GEMINI_API_KEY` in Vercel environment variables.
 - **Dual Deployment** — Traditional Node/NestJS or Vercel serverless from the same codebase
 - **Zero Auth Required** — Designed as a single-user/personal tool (easily extendable to multi-user)
 
----
 
-## 📄 License
-
-This project is open source and available for educational and commercial use.
 
 ---
 
